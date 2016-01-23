@@ -1,0 +1,4 @@
+source/vcpp
+!source/vcpp/videofeed.sln
+!source/vcpp/videofeed.vcxproj
+!source/vcpp/videofeed.vcxproj.filters
