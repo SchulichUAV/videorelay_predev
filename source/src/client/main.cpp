@@ -1,4 +1,5 @@
 // Main entry point of client application
+#include "../shared/pch.h"
 
 int main(int argn, const char **argc)
 {
