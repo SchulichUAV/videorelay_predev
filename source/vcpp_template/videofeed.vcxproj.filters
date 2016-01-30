@@ -19,6 +19,9 @@
     <Filter Include="Source Files\shared">
       <UniqueIdentifier>{a4d5a90e-3f79-49c6-be2d-cc625ba27cbb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\server">
+      <UniqueIdentifier>{c68f06a2-1549-4570-8325-9cb0612c9bf5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\client\main.cpp">

@@ -1,11 +1,11 @@
 // Main entry point of client application
 #include "../shared/pch.h"
 
-int main(int argn, const char **argc)
+int main(int argc, char **argv)
 {
     if (enet_initialize() != 0)
     {
-        cerr << "An error occurred while initializing ENet." << endl;
+        fputs("An error occurred while initializing ENet.", stderr);
         return EXIT_FAILURE;
     }
 
