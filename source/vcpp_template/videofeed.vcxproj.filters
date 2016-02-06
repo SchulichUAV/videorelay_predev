@@ -22,12 +22,12 @@
     <Filter Include="Source Files\server">
       <UniqueIdentifier>{c68f06a2-1549-4570-8325-9cb0612c9bf5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\client\gui">
+      <UniqueIdentifier>{26ff9580-5f5c-43d2-a05a-0cd46ee132ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\client\main.cpp">
-      <Filter>Source Files\client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\client\wxClient.cpp">
       <Filter>Source Files\client</Filter>
     </ClCompile>
     <ClCompile Include="..\src\shared\pch.cpp">
@@ -35,6 +35,12 @@
     </ClCompile>
     <ClCompile Include="..\src\shared\protocol.cpp">
       <Filter>Source Files\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client\gui\ClientFrame.cpp">
+      <Filter>Source Files\client\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client\ClientApp.cpp">
+      <Filter>Source Files\client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="..\src\shared\tools.h">
       <Filter>Source Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\gui\ClientFrame.h">
+      <Filter>Source Files\client\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\ClientApp.h">
+      <Filter>Source Files\client</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

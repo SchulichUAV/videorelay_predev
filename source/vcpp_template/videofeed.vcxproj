@@ -129,12 +129,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\client\ClientApp.cpp" />
+    <ClCompile Include="..\src\client\gui\ClientFrame.cpp" />
     <ClCompile Include="..\src\client\main.cpp" />
-    <ClCompile Include="..\src\client\wxClient.cpp" />
     <ClCompile Include="..\src\shared\pch.cpp" />
     <ClCompile Include="..\src\shared\protocol.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\client\ClientApp.h" />
+    <ClInclude Include="..\src\client\gui\ClientFrame.h" />
     <ClInclude Include="..\src\shared\pch.h" />
     <ClInclude Include="..\src\shared\platform.h" />
     <ClInclude Include="..\src\shared\tools.h" />
