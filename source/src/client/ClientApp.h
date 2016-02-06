@@ -10,6 +10,10 @@ class ClientApp: public wxApp
 {
 public:
     virtual bool OnInit();
+    virtual int OnExit();
+
+protected:
+    class ClientFrame *m_pFrame;
 };
 
 #endif
