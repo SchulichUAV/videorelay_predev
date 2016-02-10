@@ -1,4 +1,6 @@
 source/vcpp/**
 !source/vcpp/videofeed.sln
-!source/vcpp/videofeed.vcxproj
-!source/vcpp/videofeed.vcxproj.filters
+!source/vcpp/client.vcxproj
+!source/vcpp/client.vcxproj.filters
+!source/vcpp/server.vcxproj
+!source/vcpp/server.vcxproj.filters

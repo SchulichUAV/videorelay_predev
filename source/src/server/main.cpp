@@ -1,6 +1,11 @@
 // Main entry point of server application
 #include "../shared/pch.h"
 
+// temporary
+#define logline(msg) fputs(msg "\n", stdout)
+
+ENetHost *serverhost;
+
 inline void serverslice(uint timeout = 5)
 {
     // server LAN socket
@@ -10,7 +15,7 @@ inline void serverslice(uint timeout = 5)
     static unsigned int lastThrottleEpoch = 0;
     if(serverhost->bandwidthThrottleEpoch != lastThrottleEpoch)
     {
-        if(lastThrottleEpoch) linequalitystats(serverhost->bandwidthThrottleEpoch - lastThrottleEpoch);
+        //if(lastThrottleEpoch) linequalitystats(serverhost->bandwidthThrottleEpoch - lastThrottleEpoch);
         lastThrottleEpoch = serverhost->bandwidthThrottleEpoch;
     }
 
@@ -29,21 +34,21 @@ inline void serverslice(uint timeout = 5)
         {
             case ENET_EVENT_TYPE_CONNECT:
             {
-                cout << "client connected\n";
+                logline("client connected");
                 break;
             }
 
             case ENET_EVENT_TYPE_RECEIVE:
             {
                 int cn = (int)(size_t)event.peer->data;
-                cout << "packet received\n";
+                logline("packet received");
                 if(event.packet->referenceCount==0) enet_packet_destroy(event.packet);
                 break;
             }
 
             case ENET_EVENT_TYPE_DISCONNECT:
             {
-                cout << "client disconnected\n";
+                logline("client disconnected");
                 break;
             }
 
@@ -53,11 +58,11 @@ inline void serverslice(uint timeout = 5)
     }
 }
 
-int main(int argn, const char **argc)
+int main(int argc, char **argv)
 {
     if (enet_initialize () != 0)
     {
-        cerr << "An error occurred while initializing ENet." << endl;
+        fputs("An error occurred while initializing ENet.\n", stderr);
         return EXIT_FAILURE;
     }
 
@@ -72,11 +77,11 @@ int main(int argn, const char **argc)
     }
 
     ENetAddress address = { ENET_HOST_ANY, (enet_uint16)serverport };
-    if(scl.ip[0] && enet_address_set_host(&address, scl.ip)<0)
-        cout << "WARNING: server ip not resolved!" << endl;
+    if(ip[0] && enet_address_set_host(&address, ip)<0)
+        fputs("WARNING: server ip not resolved!\n", stderr);
 
     serverhost = enet_host_create(&address, maxclients+1, 2, 0, uprate);
-    if(!serverhost) fatal("could not create server host");
+    //if(!serverhost) fatal("could not create server host");
 
     atexit(enet_deinitialize);
     enet_time_set(0);

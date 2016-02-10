@@ -14,33 +14,35 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Source Files\client">
-      <UniqueIdentifier>{f23f129a-df69-4378-bf3c-5b6fab9b055b}</UniqueIdentifier>
+      <UniqueIdentifier>{b0c565e9-dc80-4f7c-8043-dab831e40459}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\shared">
-      <UniqueIdentifier>{a4d5a90e-3f79-49c6-be2d-cc625ba27cbb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\server">
-      <UniqueIdentifier>{c68f06a2-1549-4570-8325-9cb0612c9bf5}</UniqueIdentifier>
+      <UniqueIdentifier>{0aa9a288-f59e-4c06-bc1d-fab64e610050}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\client\gui">
-      <UniqueIdentifier>{26ff9580-5f5c-43d2-a05a-0cd46ee132ae}</UniqueIdentifier>
+      <UniqueIdentifier>{a6720f8f-f024-4cc7-9f13-1d1e50b92b42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\shared">
+      <UniqueIdentifier>{1cf6cf59-c621-4960-98b5-6d8831f65b85}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
+    <Filter Include="Header Files\client">
+      <UniqueIdentifier>{40aae2e6-a45f-434b-a925-ec9661172644}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\client\gui">
+      <UniqueIdentifier>{067b68d6-74c4-41c7-8c74-3e04e7fb869b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\client\main.cpp">
       <Filter>Source Files\client</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\shared\pch.cpp">
-      <Filter>Source Files\shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\shared\protocol.cpp">
-      <Filter>Source Files\shared</Filter>
+    <ClCompile Include="..\src\client\gui\ClientApp.cpp">
+      <Filter>Source Files\client\gui</Filter>
     </ClCompile>
     <ClCompile Include="..\src\client\gui\ClientFrame.cpp">
       <Filter>Source Files\client\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\client\ClientApp.cpp">
-      <Filter>Source Files\client</Filter>
     </ClCompile>
     <ClCompile Include="..\src\client\gui\ServerList.cpp">
       <Filter>Source Files\client\gui</Filter>
@@ -48,28 +50,34 @@
     <ClCompile Include="..\src\client\gui\TextConsole.cpp">
       <Filter>Source Files\client\gui</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\shared\pch.cpp">
+      <Filter>Source Files\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\shared\protocol.cpp">
+      <Filter>Source Files\shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\shared\pch.h">
-      <Filter>Source Files\shared</Filter>
+      <Filter>Header Files\shared</Filter>
     </ClInclude>
     <ClInclude Include="..\src\shared\platform.h">
-      <Filter>Source Files\shared</Filter>
+      <Filter>Header Files\shared</Filter>
     </ClInclude>
     <ClInclude Include="..\src\shared\tools.h">
-      <Filter>Source Files\shared</Filter>
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\gui\ClientApp.h">
+      <Filter>Header Files\client\gui</Filter>
     </ClInclude>
     <ClInclude Include="..\src\client\gui\ClientFrame.h">
-      <Filter>Source Files\client\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\client\ClientApp.h">
-      <Filter>Source Files\client</Filter>
+      <Filter>Header Files\client\gui</Filter>
     </ClInclude>
     <ClInclude Include="..\src\client\gui\ServerList.h">
-      <Filter>Source Files\client\gui</Filter>
+      <Filter>Header Files\client\gui</Filter>
     </ClInclude>
     <ClInclude Include="..\src\client\gui\TextConsole.h">
-      <Filter>Source Files\client\gui</Filter>
+      <Filter>Header Files\client\gui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,4 +1,3 @@
-/*
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,7 +5,6 @@
 #include <ctype.h>
 #include <time.h>
 #include <limits.h>
-*/
 
 #include <enet/enet.h>
 

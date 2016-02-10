@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {
     if (enet_initialize() != 0)
     {
-        fputs("An error occurred while initializing ENet.", stderr);
+        fputs("An error occurred while initializing ENet.\n", stderr);
         return EXIT_FAILURE;
     }
 
