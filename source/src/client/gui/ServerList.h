@@ -14,8 +14,8 @@ public:
     ServerList(wxWindow *parent, wxWindowID id = -1);
 
 protected:
-    wxBoxSizer m_Sizer;
-    wxListCtrl m_List;
+    wxBoxSizer *m_Sizer;
+    wxListCtrl *m_List;
 };
 
 #endif
