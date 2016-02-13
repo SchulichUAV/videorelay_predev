@@ -3,5 +3,6 @@
 
 #include "platform.h"
 #include "tools.h"
+#include "protocol.h"
 
 #endif

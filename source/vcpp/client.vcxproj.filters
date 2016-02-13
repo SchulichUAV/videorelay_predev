@@ -56,6 +56,9 @@
     <ClCompile Include="..\src\shared\protocol.cpp">
       <Filter>Source Files\shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\shared\tools.cpp">
+      <Filter>Source Files\shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\shared\pch.h">
@@ -78,6 +81,9 @@
     </ClInclude>
     <ClInclude Include="..\src\client\gui\TextConsole.h">
       <Filter>Header Files\client\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\protocol.h">
+      <Filter>Header Files\shared</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -36,6 +36,12 @@
     <ClCompile Include="..\src\shared\protocol.cpp">
       <Filter>Source Files\shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\server\log.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\shared\tools.cpp">
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\shared\pch.h">
@@ -46,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="..\src\shared\tools.h">
       <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shared\protocol.h">
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\server\server.h">
+      <Filter>Header Files\server</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

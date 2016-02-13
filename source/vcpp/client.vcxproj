@@ -156,6 +156,7 @@
     <ClCompile Include="..\src\client\main.cpp" />
     <ClCompile Include="..\src\shared\pch.cpp" />
     <ClCompile Include="..\src\shared\protocol.cpp" />
+    <ClCompile Include="..\src\shared\tools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\client\gui\ClientApp.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="..\src\client\gui\TextConsole.h" />
     <ClInclude Include="..\src\shared\pch.h" />
     <ClInclude Include="..\src\shared\platform.h" />
+    <ClInclude Include="..\src\shared\protocol.h" />
     <ClInclude Include="..\src\shared\tools.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
