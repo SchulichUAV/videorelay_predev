@@ -32,11 +32,16 @@ bool logline(loglevel level, const char *msg, ...)
         // log to console
         if (consolethreshold <= level)
         {
+            // is puts faster?
+            fprintf(stdout, "%s%s%s\n", ts, levelprefix[level], line);
+            /*
             if (ts[0])
                 fputs(ts, stdout);
             if (levelprefix[level])
                 fputs(levelprefix[level], stdout);
             fputs(line, stdout);
+            putc('\n', stdout);
+            */
         }
         // log to file?
         // log to syslog?
