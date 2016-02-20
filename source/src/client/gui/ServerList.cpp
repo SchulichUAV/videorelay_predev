@@ -1,7 +1,14 @@
 // Implementation of server list control
+#include "../../shared/pch.h"
 #include "ServerList.h"
 
-ServerList::ServerList(wxWindow *parent, wxWindowID id) : wxPanel(parent, id)
+BEGIN_EVENT_TABLE(ServerList, wxPanel)
+    EVT_TIMER(ID_SERVERLIST_TIMER, ServerList::OnTimer)
+END_EVENT_TABLE()
+
+ServerList::ServerList(wxWindow *parent, wxWindowID id)
+    : wxPanel(parent, id),
+      m_Timer(this, ID_SERVERLIST_TIMER)
 {
     m_pList = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
     m_pList->AppendColumn("Server");
@@ -10,4 +17,89 @@ ServerList::ServerList(wxWindow *parent, wxWindowID id) : wxPanel(parent, id)
     m_pSizer = new wxBoxSizer(wxHORIZONTAL);
     m_pSizer->Add(m_pList, 1, wxEXPAND | wxALL);
     SetSizer(m_pSizer);
+
+    //m_pTimer = new wxTimer(this, ID_SERVERLIST_TIMER);
+    //m_pTimer->Start(200);
+    m_Timer.Start(200);
+
+    refreshservers(true);
+}
+
+void ServerList::pingservers()
+{
+    if(pingsock == ENET_SOCKET_NULL)
+    {
+        pingsock = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
+        if(pingsock == ENET_SOCKET_NULL)
+        {
+            //lastinfo = totalmillis;
+            return;
+        }
+        enet_socket_set_option(pingsock, ENET_SOCKOPT_NONBLOCK, 1);
+        enet_socket_set_option(pingsock, ENET_SOCKOPT_BROADCAST, 1);
+    }
+
+    ENetBuffer buf;
+    static int ping[1];
+    ping[0] = 1337;
+
+    bool searchlan = true;
+
+    for (auto it = servers.begin(); it != servers.end(); ++it)
+    {
+        serverinfo &si = **it;
+        if (si.address.host == ENET_HOST_ANY) continue;
+        buf.data = ping;
+        buf.dataLength = sizeof(ping);
+        enet_socket_send(pingsock, &si.address, &buf, 1);
+    }
+
+    if (searchlan)
+    {
+        ENetAddress address;
+        address.host = ENET_HOST_BROADCAST;
+        address.port = SERVINFO_PORT_LAN;
+        buf.data = ping;
+        buf.dataLength = sizeof(ping);
+        enet_socket_send(pingsock, &address, &buf, 1);
+    }
+}
+
+void ServerList::checkresolver()
+{
+    // a resolver isn't needed yet
+}
+
+void ServerList::checkpings()
+{
+    if (pingsock == ENET_SOCKET_NULL) return;
+    enet_uint32 events = ENET_SOCKET_WAIT_RECEIVE;
+    ENetBuffer buf;
+    ENetAddress addr;
+    static int ping[1];
+    buf.data = ping;
+    buf.dataLength = sizeof(ping);
+    while (enet_socket_wait(pingsock, &events, 0) >= 0 && events)
+    {
+        int len = enet_socket_receive(pingsock, &addr, &buf, 1);
+        if (len <= 0) return;
+
+        // TODO: find serverinfo or add to serverlist
+        printf("ping received: %d", ping[0]);
+    }
+}
+
+void ServerList::refreshservers(bool init)
+{
+    checkresolver();
+    checkpings();
+    // TODO: also ping every 5 seconds
+    if(init)
+        pingservers();
+}
+
+void ServerList::OnTimer(wxTimerEvent& WXUNUSED(event))
+{
+    puts("DEBUG: timer triggered");
+    refreshservers();
 }

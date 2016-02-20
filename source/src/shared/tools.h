@@ -1,5 +1,9 @@
 // generic tools for any C++ program
 
+// A large portion of this code is
+// from Cube, AssaultCube, and AssaultCube Reloaded
+// released under the Cube license.
+
 #ifndef _TOOLS_H
 #define _TOOLS_H
 
@@ -17,7 +21,7 @@ typedef unsigned int uint;
 
 // fast safe strings
 
-#define MAXSTRLEN 260
+#define MAXSTRLEN 512
 typedef char string[MAXSTRLEN];
 
 inline void vformatstring(char *d, const char *fmt, va_list v, int len = MAXSTRLEN)
@@ -38,9 +42,34 @@ inline char *concatstring(char *d, const char *s, size_t len = MAXSTRLEN)
     return used < len ? copystring(d + used, s, len - used) : d;
 }
 
+struct stringformatter
+{
+    char *buf;
+    stringformatter(char *buf) : buf((char *)buf) {}
+    void operator()(const char *fmt, ...)
+    {
+        va_list v;
+        va_start(v, fmt);
+        vformatstring(buf, fmt, v);
+        va_end(v);
+    }
+};
+
+#define formatstring(d) stringformatter((char *)d)
+#define defformatstring(d) string d; formatstring(d)
 #define defvformatstring(d,last,fmt) string d; { va_list ap; va_start(ap, last); vformatstring(d, fmt, ap); va_end(ap); }
 
+// just use STL storage containers
+#include <vector>
+
 const char *timestring(bool local, const char *fmt = "%Y%m%d_%H.%M.%S"); // sortable time for filenames
+
+// endian swap stuff?
+
+void seedMT(uint seed);
+uint randomMT();
+
+const char *iptoa(const enet_uint32 ip);
 
 #define fatal(msg) { \
     fputs("fatal error: " msg "\n", stderr); \

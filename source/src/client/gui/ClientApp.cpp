@@ -1,4 +1,5 @@
 // Implementation of client application
+#include "../../shared/pch.h"
 #include "ClientApp.h"
 #include "ClientFrame.h"
 

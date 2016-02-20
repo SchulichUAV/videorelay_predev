@@ -40,6 +40,19 @@ void process()
         if (len < 0) continue;
 
         buf.dataLength = min(len, 4);
+        string debugip;
+        // assume little endian for testing
+        if (!len) data[0] = 0;
+        if (len <= 1) data[1] = 0;
+        if (len <= 2) data[2] = 0;
+        if (len <= 3) data[3] = 0;
+        enet_address_get_host_ip(&addr, debugip, sizeof(debugip));
+        logline(LOGL_DEBUG, "DEBUG: received %d bytes (%d) on %s from %s:%d",
+            len,
+            *(int *)data,
+            i ? "lansock" : "pongsock",
+            debugip,
+            addr.port);
         enet_socket_send(pongsock, &addr, &buf, 1);
         //*infosend += (int)buf.dataLength;
     }

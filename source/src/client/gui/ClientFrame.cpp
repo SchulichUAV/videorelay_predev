@@ -1,4 +1,5 @@
 // Main application frame
+#include "../../shared/pch.h"
 #include "ClientFrame.h"
 #include "ServerList.h"
 #include "TextConsole.h"
