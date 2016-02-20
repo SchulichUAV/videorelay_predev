@@ -40,14 +40,14 @@ void ServerList::pingservers()
     }
 
     ENetBuffer buf;
-    static int ping[1];
-    ping[0] = 1337;
+    static time_t ping[1];
+    ping[0] = time(NULL);
 
     bool searchlan = true;
 
     for (auto it = servers.begin(); it != servers.end(); ++it)
     {
-        serverinfo &si = **it;
+        serverinfo &si = *it;
         if (si.address.host == ENET_HOST_ANY) continue;
         buf.data = ping;
         buf.dataLength = sizeof(ping);
@@ -76,7 +76,7 @@ void ServerList::checkpings()
     enet_uint32 events = ENET_SOCKET_WAIT_RECEIVE;
     ENetBuffer buf;
     ENetAddress addr;
-    static int ping[1];
+    static time_t ping[1];
     buf.data = ping;
     buf.dataLength = sizeof(ping);
     while (enet_socket_wait(pingsock, &events, 0) >= 0 && events)
@@ -84,8 +84,24 @@ void ServerList::checkpings()
         int len = enet_socket_receive(pingsock, &addr, &buf, 1);
         if (len <= 0) return;
 
-        // TODO: find serverinfo or add to serverlist
-        printf("ping received: %d", ping[0]);
+        serverinfo *si = NULL;
+        for (auto s = servers.begin(); s != servers.end(); ++s)
+        {
+            if (s->address.host == addr.host && s->address.port == addr.port)
+            {
+                si = &*s;
+                break;
+            }
+        }
+
+        if (!si)
+        {
+            servers.push_back(serverinfo(addr));
+            si = &servers.back();
+        }
+
+        si->ping = time(NULL) - ping[0];
+        printf("ping received: %d (after %d ms)", ping[0], (int)si->ping);
     }
 }
 
@@ -100,6 +116,5 @@ void ServerList::refreshservers(bool init)
 
 void ServerList::OnTimer(wxTimerEvent& WXUNUSED(event))
 {
-    puts("DEBUG: timer triggered");
     refreshservers();
 }

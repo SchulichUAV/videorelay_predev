@@ -13,7 +13,17 @@ struct serverinfo
 {
     string name;
     ENetAddress address;
-    int port;
+    int port, ping;
+
+    serverinfo(const ENetAddress &addr) : address(addr)
+    {
+        enet_address_get_host_ip(&addr, name, sizeof(name));
+
+        // recover original port
+        port = addr.port - 1;
+
+        ping = -1;
+    }
 };
 
 class ServerList : public wxPanel
@@ -31,7 +41,7 @@ protected:
     wxListCtrl *m_pList;
     wxTimer m_Timer;
 
-    std::vector<serverinfo *> servers;
+    std::vector<serverinfo> servers;
     ENetSocket pingsock = ENET_SOCKET_NULL;
 
 private:
