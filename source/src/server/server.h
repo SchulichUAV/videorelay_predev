@@ -1,9 +1,11 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include "serverinfo.h"
+
 struct servercommandline
 {
-    int serverport = 1337;
+    int serverport = DEFAULT_SERV_PORT;
     const char *ip = "";
     int maxclients = 128;
     int uprate = 0;

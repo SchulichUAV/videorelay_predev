@@ -151,12 +151,14 @@
   <ItemGroup>
     <ClCompile Include="..\src\server\log.cpp" />
     <ClCompile Include="..\src\server\main.cpp" />
+    <ClCompile Include="..\src\server\serverinfo.cpp" />
     <ClCompile Include="..\src\shared\pch.cpp" />
     <ClCompile Include="..\src\shared\protocol.cpp" />
     <ClCompile Include="..\src\shared\tools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\server\server.h" />
+    <ClInclude Include="..\src\server\serverinfo.h" />
     <ClInclude Include="..\src\shared\pch.h" />
     <ClInclude Include="..\src\shared\platform.h" />
     <ClInclude Include="..\src\shared\protocol.h" />

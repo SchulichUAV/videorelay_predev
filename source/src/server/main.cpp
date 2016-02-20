@@ -48,8 +48,15 @@ inline void serverslice(uint timeout = 5)
     servmillis = (int)enet_time_get();
 
     // server LAN socket
+    serverinfo::process();
 
-    // send camera packets
+    // camera packets
+    static int lastCameraPacket = 0;
+    if (servmillis > lastCameraPacket + 500)
+    {
+        // TODO: send random data
+        lastCameraPacket = servmillis;
+    }
 
     static unsigned int lastThrottleEpoch = 0;
     if(serverhost->bandwidthThrottleEpoch != lastThrottleEpoch)
@@ -128,6 +135,9 @@ int main(int argc, char **argv)
     if(!initlogging(scl.logtimestamp))
         fputs("WARNING: logging not started!\n", stderr);
 
+    // server info sockets
+    serverinfo::init(scl.ip, scl.serverport+1);
+
     // ENet host
     ENetAddress address = { ENET_HOST_ANY, (enet_uint16)scl.serverport };
     if(scl.ip[0] && enet_address_set_host(&address, scl.ip)<0)
@@ -135,10 +145,7 @@ int main(int argc, char **argv)
 
     serverhost = enet_host_create(&address, scl.maxclients+1, CHAN_NUM, 0, scl.uprate);
     if (!serverhost)
-    {
-        fputs("fatal error: could not create server host\n", stderr);
-        return EXIT_FAILURE;
-    }
+        fatal("could not create server host");
 
     atexit(enet_deinitialize);
     enet_time_set(0);

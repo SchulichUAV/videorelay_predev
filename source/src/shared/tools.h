@@ -42,4 +42,9 @@ inline char *concatstring(char *d, const char *s, size_t len = MAXSTRLEN)
 
 const char *timestring(bool local, const char *fmt = "%Y%m%d_%H.%M.%S"); // sortable time for filenames
 
+#define fatal(msg) { \
+    fputs("fatal error: " msg "\n", stderr); \
+    exit(EXIT_FAILURE); \
+}
+
 #endif
