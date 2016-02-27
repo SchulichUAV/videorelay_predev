@@ -10,6 +10,7 @@ class TextConsole : public wxTextCtrl
 {
 public:
     TextConsole(wxWindow *parent, wxWindowID id = -1);
+    void AddLine(const wxString &line);
 };
 
 #endif

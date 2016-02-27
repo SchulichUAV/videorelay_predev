@@ -30,7 +30,7 @@ ClientFrame::ClientFrame(const wxString& title, const wxPoint& pos, const wxSize
     menuBar->Append( menuHelp, "&Help" );
     SetMenuBar( menuBar );
     CreateStatusBar();
-    SetStatusText( "Welcome to wxWidgets!" );
+    SetStatusText( "Welcome to an app powered by wxWidgets!" );
 
     // Create panels
     m_mgr.SetManagedWindow(this);
@@ -52,11 +52,96 @@ ClientFrame::ClientFrame(const wxString& title, const wxPoint& pos, const wxSize
     m_mgr.AddPane(m_pTextIncoming, wxRIGHT, "Incoming Data");
 
     m_mgr.Update();
+
+    clienthost = enet_host_create(NULL, // client host
+        1, // 1 outgoing connection
+        CHAN_NUM,
+        0, // unlimited downstream bandwidth
+        14400); // 14k upstream
+    if (!clienthost)
+    {
+        fputs("Client host could not be created.\n", stderr);
+        Close(true);
+    }
+    connpeer = NULL;
+}
+
+void ClientFrame::SetAndLogMsg(const wxString & str)
+{
+    SetStatusText(str);
+    m_pTextConsole->AddLine(str);
+}
+
+void ClientFrame::AbortConnect()
+{
+    if (!connpeer)
+        return;
+
+    if (connpeer->state != ENET_PEER_STATE_DISCONNECTED)
+        enet_peer_reset(connpeer);
+
+    connpeer = NULL;
+}
+
+void ClientFrame::Connect(const ENetAddress &address)
+{
+    if (connpeer)
+    {
+        // This message would be overwritten in the status bar
+        m_pTextConsole->AddLine("Aborting connection attempt");
+        AbortConnect();
+    }
+
+    SetAndLogMsg(
+        wxString::Format("Connecting to %s:%d",
+            iptoa(ENET_NET_TO_HOST_32(address.host)),
+            address.port));
+
+    connpeer = enet_host_connect(clienthost, &address, CHAN_NUM, 0);
+    if (connpeer == NULL)
+    {
+        SetAndLogMsg("Connect failed: no available ENet peers");
+        return;
+    }
+
+    enet_host_flush(clienthost);
+
+    // This is for testing only!
+    ENetEvent event;
+    /* Wait up to 1000 milliseconds for an event. */
+    while (enet_host_service(clienthost, &event, 1000) > 0)
+    {
+        switch (event.type)
+        {
+        case ENET_EVENT_TYPE_CONNECT:
+            printf("Connected from %x:%u.\n",
+                event.peer->address.host,
+                event.peer->address.port);
+            /* Store any relevant client information here. */
+            event.peer->data = "Client information";
+            break;
+        case ENET_EVENT_TYPE_RECEIVE:
+            printf("A packet of length %u containing %s was received on channel %u.\n",
+                (uint)event.packet->dataLength,
+                (char *)event.packet->data,
+                (uint)event.channelID);
+            /* Clean up the packet now that we're done using it. */
+            enet_packet_destroy(event.packet);
+
+            break;
+
+        case ENET_EVENT_TYPE_DISCONNECT:
+            printf("DISCONNECTED");
+            /* Reset the peer's client information. */
+            event.peer->data = NULL;
+        }
+    }
 }
 
 ClientFrame::~ClientFrame()
 {
     m_mgr.UnInit();
+    enet_host_destroy(clienthost);
 }
 
 void ClientFrame::OnExit(wxCommandEvent& event)

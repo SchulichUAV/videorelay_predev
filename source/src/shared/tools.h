@@ -42,6 +42,8 @@ inline char *concatstring(char *d, const char *s, size_t len = MAXSTRLEN)
     return used < len ? copystring(d + used, s, len - used) : d;
 }
 
+extern char *concatformatstring(char *d, const char *s, ...);
+
 struct stringformatter
 {
     char *buf;

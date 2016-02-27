@@ -44,7 +44,7 @@ struct servercommandline
 enum client_type_t
 {
     ST_EMPTY = 0,
-    ST_IP,
+    ST_REMOTE,
 };
 
 struct client

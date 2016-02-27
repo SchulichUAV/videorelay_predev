@@ -4,10 +4,32 @@
 
 servercommandline scl;
 ENetHost *serverhost;
-int servmillis = 0;
+uint servmillis = 0;
+uint totalclients = 0;
 client clients[MAXCLIENTS];
 
-client &addclient(client_type_t type = ST_IP)
+void sendpacket(client *cl, int chan, ENetPacket *packet, int exclude = -1)
+{
+    if (!cl)
+    {
+        /*
+        loopi(MAXCLIENTS)
+            if (i != exclude && clients[i].type != ST_EMPTY && clients[i].type != ST_REMOTE)
+                sendpacket(&clients[i], chan, packet);
+        */
+        enet_host_broadcast(serverhost, chan, packet);
+        return;
+    }
+
+    switch (cl->type)
+    {
+        case ST_REMOTE:
+            enet_peer_send(cl->peer, chan, packet);
+            break;
+    }
+}
+
+client &addclient(client_type_t type = ST_REMOTE)
 {
     loopi(MAXCLIENTS)
     {
@@ -37,32 +59,68 @@ void disconnect_client(client &c, int reason = -1)
         c.hostname,
         c.clientnum,
         servmillis - c.connectmillis);
-    //--totalclients;
+    --totalclients;
     c.peer->data = NULL;
-    // enet_peer_disconnect(c->peer, reason);
+    if(reason >= 0) enet_peer_disconnect(c.peer, reason);
     // (no need to notify other clients)
 }
 
 inline void serverslice(uint timeout = 5)
 {
-    servmillis = (int)enet_time_get();
+    servmillis = enet_time_get();
 
-    // server LAN socket
+    // server LAN/info sockets
     serverinfo::process();
 
     // camera packets
-    static int lastCameraPacket = 0;
+    static uint lastCameraPacket = 0;
     if (servmillis > lastCameraPacket + 500)
     {
-        // TODO: send random data
         lastCameraPacket = servmillis;
+        const bool updated = true;
+        // TODO add code to read camera
+        if (totalclients && updated)
+        {
+            ENetPacket *packet;
+            defformatstring(consoleDebugText)("Sending packet at time %d\n", servmillis);
+            packet = enet_packet_create(consoleDebugText, strlen(consoleDebugText) * sizeof(char), 0);
+            sendpacket(NULL, CHAN_TEXT, packet);
+            // TODO manage memory and use ENET_PACKET_FLAG_NO_ALLOCATE
+            packet = enet_packet_create(NULL, 1920 * 1080 * 3, 0);
+            // add a mix of uninitialized data and random chars
+            uchar *p = packet->data, *guard = &packet->data[packet->dataLength];
+            while (p < guard)
+            {
+                *p = rand();
+                p += (rand() & 7) + 1;
+            }
+            sendpacket(NULL, CHAN_VIDEO, packet);
+            enet_host_flush(serverhost);
+        }
     }
 
-    static unsigned int lastThrottleEpoch = 0;
+    static uint lastThrottleEpoch = 0;
     if(serverhost->bandwidthThrottleEpoch != lastThrottleEpoch)
     {
         //if(lastThrottleEpoch) linequalitystats(serverhost->bandwidthThrottleEpoch - lastThrottleEpoch);
         lastThrottleEpoch = serverhost->bandwidthThrottleEpoch;
+    }
+
+    static uint nextstatus = 0;
+    if (servmillis > nextstatus) // display bandwidth stats
+    {
+        nextstatus = servmillis + 60 * 1000;
+        // no configs to reread
+        if (totalclients)
+        {
+            logline(LOGL_INFO, "Status at %s: %d clients, %.1f out, %.1f in (KB/sec)",
+                timestring(true, "%Y-%m-%d %H:%M:%S"),
+                totalclients,
+                serverhost->totalSentData / 60.0f / 1024,
+                serverhost->totalReceivedData / 60.0f / 1024);
+            // linequalitystats()
+        }
+        serverhost->totalSentData = serverhost->totalReceivedData = 0;
     }
 
     ENetEvent event;
@@ -77,19 +135,21 @@ inline void serverslice(uint timeout = 5)
             serviced = true;
         }
 
-        client *c = event.peer ? (client *)event.peer->data : NULL;
+        client *c = (client *)event.peer->data;
         switch(event.type)
         {
             case ENET_EVENT_TYPE_CONNECT:
             {
                 c = &addclient();
-                c->type = ST_IP;
+                c->type = ST_REMOTE;
                 c->peer = event.peer;
                 c->peer->data = &c;
                 c->connectmillis = servmillis;
                 if (enet_address_get_host_ip(&c->peer->address, c->hostname, sizeof(c->hostname)) != 0)
                     copystring(c->hostname, "unknown");
-                logline(LOGL_INFO, "[%s] client connected", c->hostname);
+                concatformatstring(c->hostname, ":%u", event.peer->address.port);
+                logline(LOGL_INFO, "[%s] client (%d) connected", c->hostname, c->clientnum);
+                ++totalclients;
                 break;
             }
 
@@ -105,7 +165,8 @@ inline void serverslice(uint timeout = 5)
 
             case ENET_EVENT_TYPE_DISCONNECT:
             {
-                disconnect_client(*c);
+                if(c != NULL)
+                    disconnect_client(*c);
                 break;
             }
 

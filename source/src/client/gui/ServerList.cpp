@@ -1,16 +1,19 @@
 // Implementation of server list control
 #include "../../shared/pch.h"
+#include "ClientFrame.h"
 #include "ServerList.h"
 
 BEGIN_EVENT_TABLE(ServerList, wxPanel)
     EVT_TIMER(ID_SERVERLIST_TIMER, ServerList::OnTimer)
+    EVT_LIST_ITEM_ACTIVATED(ID_SERVERLIST_LISTVIEW, ServerList::OnListItemActivated)
 END_EVENT_TABLE()
 
-ServerList::ServerList(wxWindow *parent, wxWindowID id)
+ServerList::ServerList(ClientFrame *parent, wxWindowID id)
     : wxPanel(parent, id),
+      m_pClientFrame(parent),
       m_Timer(this, ID_SERVERLIST_TIMER)
 {
-    m_pList = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
+    m_pList = new wxListCtrl(this, ID_SERVERLIST_LISTVIEW, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
     m_pList->AppendColumn("Server");
     m_pList->AppendColumn("Ping");
 
@@ -40,15 +43,15 @@ void ServerList::pingservers()
     }
 
     ENetBuffer buf;
-    static time_t ping[1];
-    ping[0] = time(NULL);
+    static enet_uint32 ping[1];
+    ping[0] = enet_time_get();
 
     bool searchlan = true;
 
     for (auto it = servers.begin(); it != servers.end(); ++it)
     {
         serverinfo &si = *it;
-        if (si.address.host == ENET_HOST_ANY) continue;
+        if (si.lan || si.address.host == ENET_HOST_ANY) continue;
         buf.data = ping;
         buf.dataLength = sizeof(ping);
         enet_socket_send(pingsock, &si.address, &buf, 1);
@@ -76,7 +79,7 @@ void ServerList::checkpings()
     enet_uint32 events = ENET_SOCKET_WAIT_RECEIVE;
     ENetBuffer buf;
     ENetAddress addr;
-    static time_t ping[1];
+    static enet_uint32 ping[1];
     buf.data = ping;
     buf.dataLength = sizeof(ping);
     while (enet_socket_wait(pingsock, &events, 0) >= 0 && events)
@@ -87,21 +90,18 @@ void ServerList::checkpings()
         serverinfo *si = NULL;
         for (auto s = servers.begin(); s != servers.end(); ++s)
         {
-            if (s->address.host == addr.host && s->address.port == addr.port)
+            if (s->matchPongAddr(addr))
             {
                 si = &*s;
                 break;
             }
         }
 
-        if (!si)
-        {
-            servers.push_back(serverinfo(addr));
-            si = &servers.back();
-        }
+        if (si == NULL)
+            si = &addServer(addr, true);
 
-        si->ping = time(NULL) - ping[0];
-        printf("ping received: %d (after %d ms)", ping[0], (int)si->ping);
+        si->ping = enet_time_get() - ping[0];
+        m_pList->SetItem(si->listID, 1, wxString::Format("%d", si->ping));
     }
 }
 
@@ -109,12 +109,54 @@ void ServerList::refreshservers(bool init)
 {
     checkresolver();
     checkpings();
-    // TODO: also ping every 5 seconds
-    if(init)
+    static enet_uint32 lastping = 0;
+    enet_uint32 curmillis = enet_time_get();
+    if (init || curmillis > lastping + 5000) {
+        lastping = curmillis;
         pingservers();
+    }
+}
+
+serverinfo &ServerList::addServer(const ENetAddress &addr, bool lan)
+{
+    long id = m_pList->InsertItem(0, "");
+
+    serverinfo si(addr, id, lan);
+    m_pList->SetItem(id, 0, wxString::Format("%s:%d", si.name, si.address.port));
+    m_pList->SetItem(id, 1, "?");
+
+    servers.push_back(si);
+    return servers.back();
 }
 
 void ServerList::OnTimer(wxTimerEvent& WXUNUSED(event))
 {
     refreshservers();
+}
+
+void ServerList::OnListItemActivated(wxListEvent &event)
+{
+    long id = event.GetItem().GetId();
+
+    serverinfo *si = NULL;
+    for (auto s = servers.begin(); s != servers.end(); ++s)
+    {
+        if (s->listID == id)
+        {
+            si = &*s;
+            break;
+        }
+    }
+
+    if (si == NULL)
+    {
+        // This shouldn't happen, but if the serverinfo is not found,
+        // just delete the entry.
+        m_pClientFrame->SetAndLogMsg(
+            wxString::Format("ERROR: serverinfo for ID %ld disappeared!", id));
+        m_pList->DeleteItem(id);
+        return;
+    }
+
+    m_pClientFrame->Connect(si->address);
 }

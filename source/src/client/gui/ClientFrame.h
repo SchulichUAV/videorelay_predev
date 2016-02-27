@@ -11,6 +11,9 @@ class ClientFrame: public wxFrame
 {
 public:
     ClientFrame();
+    void SetAndLogMsg(const wxString &str);
+    void AbortConnect();
+    void Connect(const ENetAddress &address);
 
 protected:
     ClientFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
@@ -23,6 +26,8 @@ protected:
     wxAuiManager m_mgr;
     class ServerList *m_pServerList;
     class TextConsole *m_pTextConsole, *m_pTextIncoming;
+    ENetHost *clienthost;
+    ENetPeer *connpeer;
 };
 
 enum

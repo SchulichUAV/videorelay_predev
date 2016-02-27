@@ -56,3 +56,9 @@ const char *iptoa(const enet_uint32 ip)
     formatstring(s[buf])("%d.%d.%d.%d", (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip & 255);
     return s[buf];
 }
+
+char *concatformatstring(char *d, const char *s, ...)
+{
+    static defvformatstring(temp, s, s);
+    return concatstring(d, temp);
+}
