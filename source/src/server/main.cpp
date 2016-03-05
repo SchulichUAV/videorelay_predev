@@ -91,15 +91,22 @@ inline void serverslice(uint timeout = 5)
             defformatstring(consoleDebugText)("Sending packet at time %d\n", servmillis);
             packet = enet_packet_create(consoleDebugText, strlen(consoleDebugText) * sizeof(char), 0);
             sendpacket(NULL, CHAN_TEXT, packet);
-            // TODO manage memory and use ENET_PACKET_FLAG_NO_ALLOCATE
-            packet = enet_packet_create(NULL, 1920 * 1080 * 3, 0);
-            // add a mix of uninitialized data and random chars
-            uchar *p = packet->data, *guard = &packet->data[packet->dataLength];
-            while (p < guard)
+
+#define FRAMEBYTES 1920 * 1080 * 3
+            static uchar videobuf[FRAMEBYTES];
+            uchar *p = videobuf, *guard = &videobuf[FRAMEBYTES];
+            // randomly update pixel bytes
+            for (;;)
             {
-                *p = rand();
-                p += (rand() & 7) + 1;
+                uint r = randomMT();
+                p += ((r >> 8) & 0xF) + 1;
+                if (p >= guard)
+                    break;
+                *p = (uchar)r;
             }
+
+            // TODO manage memory and use ENET_PACKET_FLAG_NO_ALLOCATE
+            packet = enet_packet_create(videobuf, FRAMEBYTES * sizeof(uchar), 0);
             sendpacket(NULL, CHAN_VIDEO, packet);
             enet_host_flush(serverhost);
         }
@@ -148,7 +155,7 @@ inline void serverslice(uint timeout = 5)
                 client *c = &addclient();
                 c->type = ST_REMOTE;
                 c->peer = event.peer;
-                c->peer->data = (void *)c->clientnum;
+                c->peer->data = (void *)(size_t)c->clientnum;
                 c->connectmillis = servmillis;
                 if (enet_address_get_host_ip(&c->peer->address, c->hostname, sizeof(c->hostname)) != 0)
                     copystring(c->hostname, "unknown");
@@ -160,7 +167,7 @@ inline void serverslice(uint timeout = 5)
 
             case ENET_EVENT_TYPE_RECEIVE:
             {
-                int cn = (int)event.peer->data;
+                int cn = (int)(size_t)event.peer->data;
                 if (valid_client(cn))
                     process(event.packet, clients[cn], static_cast<chan_t>(event.channelID));
                 if (event.packet->referenceCount == 0)
@@ -170,7 +177,7 @@ inline void serverslice(uint timeout = 5)
 
             case ENET_EVENT_TYPE_DISCONNECT:
             {
-                int cn = (int)event.peer->data;
+                int cn = (int)(size_t)event.peer->data;
                 if (!valid_client(cn))
                     break;
                 disconnect_client(clients[cn]);
