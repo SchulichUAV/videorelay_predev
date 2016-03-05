@@ -50,16 +50,24 @@ enum client_type_t
 struct client
 {
     int clientnum;
-    client_type_t type = ST_EMPTY;
-    ENetPeer *peer = NULL;
+    client_type_t type;
+    ENetPeer *peer;
     string hostname;
-    int connectmillis = 0;
-    bool connected = false;
+    uint connectmillis;
+    bool connected;
 
-    client() : client(-1) {}
+    client() : client(-1) { clear(); }
     client(int clientnum) : clientnum(clientnum)
     {
         hostname[0] = '\0';
+    }
+
+    void clear()
+    {
+        type = ST_EMPTY;
+        peer = NULL;
+        connectmillis = 0;
+        connected = false;
     }
 };
 

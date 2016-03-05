@@ -8,6 +8,11 @@ uint servmillis = 0;
 uint totalclients = 0;
 client clients[MAXCLIENTS];
 
+bool valid_client(int cn)
+{
+    return cn >= 0 && cn < MAXCLIENTS && clients[cn].type != ST_EMPTY;
+}
+
 void sendpacket(client *cl, int chan, ENetPacket *packet, int exclude = -1)
 {
     if (!cl)
@@ -55,14 +60,15 @@ void process(ENetPacket *packet, client &c, chan_t channelID)
 
 void disconnect_client(client &c, int reason = -1)
 {
-    logline(LOGL_INFO, "[%s] disconnected client %d after %d ms",
+    logline(LOGL_INFO, "[%s] disconnected client (%d) after %u ms",
         c.hostname,
         c.clientnum,
         servmillis - c.connectmillis);
     --totalclients;
-    c.peer->data = NULL;
+    c.peer->data = (void *)-1;
     if(reason >= 0) enet_peer_disconnect(c.peer, reason);
     // (no need to notify other clients)
+    c.clear();
 }
 
 inline void serverslice(uint timeout = 5)
@@ -113,7 +119,7 @@ inline void serverslice(uint timeout = 5)
         // no configs to reread
         if (totalclients)
         {
-            logline(LOGL_INFO, "Status at %s: %d clients, %.1f out, %.1f in (KB/sec)",
+            logline(LOGL_INFO, "Status at %s: %u clients, %.1f out, %.1f in (KB/sec)",
                 timestring(true, "%Y-%m-%d %H:%M:%S"),
                 totalclients,
                 serverhost->totalSentData / 60.0f / 1024,
@@ -135,15 +141,14 @@ inline void serverslice(uint timeout = 5)
             serviced = true;
         }
 
-        client *c = (client *)event.peer->data;
         switch(event.type)
         {
             case ENET_EVENT_TYPE_CONNECT:
             {
-                c = &addclient();
+                client *c = &addclient();
                 c->type = ST_REMOTE;
                 c->peer = event.peer;
-                c->peer->data = &c;
+                c->peer->data = (void *)c->clientnum;
                 c->connectmillis = servmillis;
                 if (enet_address_get_host_ip(&c->peer->address, c->hostname, sizeof(c->hostname)) != 0)
                     copystring(c->hostname, "unknown");
@@ -155,9 +160,9 @@ inline void serverslice(uint timeout = 5)
 
             case ENET_EVENT_TYPE_RECEIVE:
             {
-                if (c != NULL)
-                    process(event.packet, *c, static_cast<chan_t>(event.channelID));
-
+                int cn = (int)event.peer->data;
+                if (valid_client(cn))
+                    process(event.packet, clients[cn], static_cast<chan_t>(event.channelID));
                 if (event.packet->referenceCount == 0)
                     enet_packet_destroy(event.packet);
                 break;
@@ -165,8 +170,10 @@ inline void serverslice(uint timeout = 5)
 
             case ENET_EVENT_TYPE_DISCONNECT:
             {
-                if(c != NULL)
-                    disconnect_client(*c);
+                int cn = (int)event.peer->data;
+                if (!valid_client(cn))
+                    break;
+                disconnect_client(clients[cn]);
                 break;
             }
 

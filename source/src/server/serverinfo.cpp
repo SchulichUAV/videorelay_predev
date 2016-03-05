@@ -47,7 +47,7 @@ void process()
         if (len <= 2) data[2] = 0;
         if (len <= 3) data[3] = 0;
         enet_address_get_host_ip(&addr, debugip, sizeof(debugip));
-        logline(LOGL_DEBUG, "DEBUG: received %d bytes on %s from %s:%d",
+        logline(LOGL_DEBUG, "DEBUG: received %d bytes on %s from %s:%hu",
             len,
             i ? "lansock" : "pongsock",
             debugip,
