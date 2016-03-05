@@ -88,7 +88,7 @@ inline void serverslice(uint timeout = 5)
         if (totalclients && updated)
         {
             ENetPacket *packet;
-            defformatstring(consoleDebugText)("Sending packet at time %d\n", servmillis);
+            defformatstring(consoleDebugText)("Sending packet at time %d", servmillis);
             packet = enet_packet_create(consoleDebugText, strlen(consoleDebugText) * sizeof(char), 0);
             sendpacket(NULL, CHAN_TEXT, packet);
 

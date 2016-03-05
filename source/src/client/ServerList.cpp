@@ -1,5 +1,5 @@
 // Implementation of server list control
-#include "../../shared/pch.h"
+#include "../shared/pch.h"
 #include "ClientFrame.h"
 #include "ServerList.h"
 

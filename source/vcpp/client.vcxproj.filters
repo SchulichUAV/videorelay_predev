@@ -19,9 +19,6 @@
     <Filter Include="Source Files\shared">
       <UniqueIdentifier>{0aa9a288-f59e-4c06-bc1d-fab64e610050}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\client\gui">
-      <UniqueIdentifier>{a6720f8f-f024-4cc7-9f13-1d1e50b92b42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\shared">
       <UniqueIdentifier>{1cf6cf59-c621-4960-98b5-6d8831f65b85}</UniqueIdentifier>
       <Extensions>
@@ -30,26 +27,8 @@
     <Filter Include="Header Files\client">
       <UniqueIdentifier>{40aae2e6-a45f-434b-a925-ec9661172644}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\client\gui">
-      <UniqueIdentifier>{067b68d6-74c4-41c7-8c74-3e04e7fb869b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\client\main.cpp">
-      <Filter>Source Files\client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\client\gui\ClientApp.cpp">
-      <Filter>Source Files\client\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\client\gui\ClientFrame.cpp">
-      <Filter>Source Files\client\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\client\gui\ServerList.cpp">
-      <Filter>Source Files\client\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\client\gui\TextConsole.cpp">
-      <Filter>Source Files\client\gui</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\shared\pch.cpp">
       <Filter>Source Files\shared</Filter>
     </ClCompile>
@@ -58,6 +37,21 @@
     </ClCompile>
     <ClCompile Include="..\src\shared\tools.cpp">
       <Filter>Source Files\shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client\TextConsole.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client\ClientApp.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client\ClientFrame.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client\LiveVideoPlayer.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client\ServerList.cpp">
+      <Filter>Source Files\client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,20 +64,23 @@
     <ClInclude Include="..\src\shared\tools.h">
       <Filter>Header Files\shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\client\gui\ClientApp.h">
-      <Filter>Header Files\client\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\client\gui\ClientFrame.h">
-      <Filter>Header Files\client\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\client\gui\ServerList.h">
-      <Filter>Header Files\client\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\client\gui\TextConsole.h">
-      <Filter>Header Files\client\gui</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\shared\protocol.h">
       <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\ClientApp.h">
+      <Filter>Header Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\ClientFrame.h">
+      <Filter>Header Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\LiveVideoPlayer.h">
+      <Filter>Header Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\ServerList.h">
+      <Filter>Header Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client\TextConsole.h">
+      <Filter>Header Files\client</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

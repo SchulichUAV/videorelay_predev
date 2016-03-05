@@ -1,6 +1,7 @@
 // Main application frame
-#include "../../shared/pch.h"
+#include "../shared/pch.h"
 #include "ClientFrame.h"
+#include "LiveVideoPlayer.h"
 #include "ServerList.h"
 #include "TextConsole.h"
 
@@ -35,12 +36,12 @@ ClientFrame::ClientFrame(const wxString& title, const wxPoint& pos, const wxSize
     // Create panels
     m_mgr.SetManagedWindow(this);
     
-    wxTextCtrl* video_temp = new wxTextCtrl(this, -1, "<video goes here>");
+    m_pVideo = new LiveVideoPlayer(this, -1);
     m_pServerList = new ServerList(this, -1);
     m_pTextConsole = new TextConsole(this, -1);
     m_pTextIncoming = new TextConsole(this, -1);
 
-    m_mgr.AddPane(video_temp, wxCENTER, "Video Feed");
+    m_mgr.AddPane(m_pVideo, wxCENTER, "Video Feed");
 
     wxAuiPaneInfo paneInfo;
     paneInfo.Direction(wxRIGHT);
@@ -63,7 +64,11 @@ ClientFrame::ClientFrame(const wxString& title, const wxPoint& pos, const wxSize
         fputs("Client host could not be created.\n", stderr);
         Close(true);
     }
+
+    curpeer = NULL;
     connpeer = NULL;
+    connmillis = 0;
+    discmillis = 0;
 }
 
 void ClientFrame::SetAndLogMsg(const wxString & str)
@@ -105,37 +110,6 @@ void ClientFrame::Connect(const ENetAddress &address)
     }
 
     enet_host_flush(clienthost);
-
-    // This is for testing only!
-    ENetEvent event;
-    /* Wait up to 1000 milliseconds for an event. */
-    while (enet_host_service(clienthost, &event, 1000) > 0)
-    {
-        switch (event.type)
-        {
-        case ENET_EVENT_TYPE_CONNECT:
-            printf("Connected from %x:%u.\n",
-                event.peer->address.host,
-                event.peer->address.port);
-            /* Store any relevant client information here. */
-            event.peer->data = "Client information";
-            break;
-        case ENET_EVENT_TYPE_RECEIVE:
-            printf("A packet of length %u containing %s was received on channel %u.\n",
-                (uint)event.packet->dataLength,
-                (char *)event.packet->data,
-                (uint)event.channelID);
-            /* Clean up the packet now that we're done using it. */
-            enet_packet_destroy(event.packet);
-
-            break;
-
-        case ENET_EVENT_TYPE_DISCONNECT:
-            printf("DISCONNECTED");
-            /* Reset the peer's client information. */
-            event.peer->data = NULL;
-        }
-    }
 }
 
 ClientFrame::~ClientFrame()
@@ -156,4 +130,81 @@ void ClientFrame::OnAbout(wxCommandEvent& event)
 void ClientFrame::OnHello(wxCommandEvent& event)
 {
     wxLogMessage("Hello world from wxWidgets!");
+}
+
+void ClientFrame::CheckNetwork()
+{
+    ENetEvent event;
+    if (!clienthost || (!curpeer && !connpeer)) return;
+    if (connpeer)
+    {
+        // update connection timer...
+    }
+    while (clienthost != NULL && enet_host_service(clienthost, &event, 0) > 0)
+    switch (event.type)
+    {
+        case ENET_EVENT_TYPE_CONNECT:
+            // disconnect(1);
+            curpeer = connpeer;
+            connpeer = NULL;
+            // connected = 1;
+            SetAndLogMsg("Connected to server");
+            enet_peer_throttle_configure(curpeer, 5000, 2, 2);
+            break;
+
+        case ENET_EVENT_TYPE_RECEIVE:
+            if (discmillis)
+                SetAndLogMsg("Attempting to disconnect...");
+            else
+                ReceivePacket(static_cast<chan_t>(event.channelID),
+                    event.packet->data,
+                    event.packet->dataLength);
+
+            enet_packet_destroy(event.packet);
+            break;
+
+        case ENET_EVENT_TYPE_DISCONNECT:
+            if (event.peer == connpeer)
+            {
+                SetAndLogMsg("Unable to connect to server");
+                AbortConnect();
+            }
+            else
+            {
+                if (!discmillis || event.data)
+                    SetAndLogMsg("Disconnected (server network error)");
+                else
+                    SetAndLogMsg("Disconnected");
+                //disconnect();
+            }
+            return;
+
+        default:
+            break;
+    }
+}
+
+void ClientFrame::ReceivePacket(chan_t chan, uchar *buf, size_t len)
+{
+    switch (chan)
+    {
+        case CHAN_TEXT:
+        {
+            static char text[1024];
+            if (len >= 1024)
+                buf[1024] = '\0';
+            copystring(text, (char *)buf, 1024);
+
+            m_pTextIncoming->AddLine(text);
+            break;
+        }
+        case CHAN_VIDEO:
+        {
+            m_pTextConsole->AddLine(wxString::Format("Received %dB video packet", (int)len));
+            break;
+        }
+        case CHAN_INIT:
+            // TODO remove this unused channel
+            break;
+    }
 }

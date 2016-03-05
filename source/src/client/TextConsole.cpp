@@ -1,5 +1,5 @@
 // Text console with clear button and context menu
-#include "../../shared/pch.h"
+#include "../shared/pch.h"
 #include "TextConsole.h"
 
 TextConsole::TextConsole(wxWindow *parent, wxWindowID id)

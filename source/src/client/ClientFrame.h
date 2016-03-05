@@ -15,6 +15,9 @@ public:
     void AbortConnect();
     void Connect(const ENetAddress &address);
 
+    void CheckNetwork();
+    void ReceivePacket(chan_t chan, uchar *buf, size_t len);
+
 protected:
     ClientFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     ~ClientFrame();
@@ -24,10 +27,14 @@ protected:
     wxDECLARE_EVENT_TABLE();
 
     wxAuiManager m_mgr;
+    class LiveVideoPlayer *m_pVideo;
     class ServerList *m_pServerList;
     class TextConsole *m_pTextConsole, *m_pTextIncoming;
+
+private:
     ENetHost *clienthost;
-    ENetPeer *connpeer;
+    ENetPeer *curpeer, *connpeer;
+    uint connmillis, discmillis;
 };
 
 enum

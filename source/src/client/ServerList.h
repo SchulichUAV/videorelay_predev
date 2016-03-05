@@ -1,7 +1,7 @@
 #ifndef WX_SERVER_LIST_H
 #define WX_SERVER_LIST_H
 
-#include "../../shared/pch.h"
+#include "../shared/pch.h"
 #include <wx/listctrl.h>
 
 enum

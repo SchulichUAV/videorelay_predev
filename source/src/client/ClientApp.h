@@ -13,6 +13,9 @@ public:
     virtual int OnExit();
 
 protected:
+    void onIdle(wxIdleEvent& evt);
+
+    bool m_shuttingDown = false;
     class ClientFrame *m_pFrame;
 };
 
