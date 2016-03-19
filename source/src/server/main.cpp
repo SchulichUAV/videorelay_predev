@@ -13,7 +13,7 @@ bool valid_client(int cn)
     return cn >= 0 && cn < MAXCLIENTS && clients[cn].type != ST_EMPTY;
 }
 
-void sendpacket(client *cl, int chan, ENetPacket *packet, int exclude = -1)
+void sendpacket(client *cl, chan_t chan, ENetPacket *packet, int exclude = -1)
 {
     if (!cl)
     {
@@ -88,22 +88,20 @@ inline void serverslice(uint timeout = 5)
         if (totalclients && updated)
         {
             ENetPacket *packet;
-            defformatstring(consoleDebugText)("Sending packet at time %d", servmillis);
+            defformatstring(consoleDebugText)("server time = %d", servmillis);
             packet = enet_packet_create(consoleDebugText, strlen(consoleDebugText) * sizeof(char), 0);
             sendpacket(NULL, CHAN_TEXT, packet);
 
-#define FRAMEBYTES 1920 * 1080 * 3
+#define FRAMEBYTES 100 * 100 * 3
             static uchar videobuf[FRAMEBYTES];
             uchar *p = videobuf, *guard = &videobuf[FRAMEBYTES];
             // randomly update pixel bytes
-            for (;;)
+            do
             {
                 uint r = randomMT();
-                p += ((r >> 8) & 0xF) + 1;
-                if (p >= guard)
-                    break;
                 *p = (uchar)r;
-            }
+                p += ((r >> 8) & 0xF) + 1;
+            } while (p < guard);
 
             // TODO manage memory and use ENET_PACKET_FLAG_NO_ALLOCATE
             packet = enet_packet_create(videobuf, FRAMEBYTES * sizeof(uchar), 0);

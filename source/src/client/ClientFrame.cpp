@@ -200,13 +200,13 @@ void ClientFrame::ReceivePacket(chan_t chan, uchar *buf, size_t len)
             m_pTextIncoming->AddLine(text);
             break;
         }
+
         case CHAN_VIDEO:
-        {
-            m_pTextIncoming->AddLine(wxString::Format("Received %dB video packet", (int)len));
+            m_pVideo->UpdateImage(buf);
             break;
-        }
+
         case CHAN_INIT:
-            // TODO remove this unused channel
+            // TODO use this to get image size
             break;
     }
 }
