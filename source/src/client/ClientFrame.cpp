@@ -190,17 +190,19 @@ void ClientFrame::ReceivePacket(chan_t chan, uchar *buf, size_t len)
     {
         case CHAN_TEXT:
         {
-            static char text[1024];
-            if (len >= 1024)
-                buf[1024] = '\0';
-            copystring(text, (char *)buf, 1024);
+            static uchar text[1024+1];
+            if (len > 1024)
+                len = 1024;
+
+            memcpy(text, buf, len * sizeof(uchar));
+            text[len] = '\0';
 
             m_pTextIncoming->AddLine(text);
             break;
         }
         case CHAN_VIDEO:
         {
-            m_pTextConsole->AddLine(wxString::Format("Received %dB video packet", (int)len));
+            m_pTextIncoming->AddLine(wxString::Format("Received %dB video packet", (int)len));
             break;
         }
         case CHAN_INIT:
